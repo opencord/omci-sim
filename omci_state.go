@@ -39,8 +39,11 @@ func NewOnuOmciState() *OnuOmciState {
 }
 
 func GetOnuOmciState(onuId uint32, intfId uint32) istate {
-	key := OnuKey{intfId, onuId}
-	return (OnuOmciStateMap[key].state)
+	/*
+		key := OnuKey{intfId, onuId}
+		return (OnuOmciStateMap[key].state)
+	*/
+	return INCOMPLETE
 }
 
 func GetGemPortId(onuId uint32, intfId uint32) uint16 {
