@@ -200,7 +200,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		state.uniGInstance++
 	default:
 		log.Printf("Invalid MibUpload request %d", state.mibUploadCtr)
-		return nil, errors.New("Invalid MibUpload request")
+		//return nil, errors.New("Invalid MibUpload request")
 	}
 
 	state.mibUploadCtr++
