@@ -16,9 +16,7 @@
 
 package core
 
-import (
-	logger "github.com/sirupsen/logrus"
-)
+import "log"
 
 func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	var resp []byte
@@ -28,7 +26,7 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 		return resp, &OmciError{"Cannot parse omci msg"}
 	}
 
-	logger.Debug("OmciRun - transactionId: %d msgType: %d, ME Class: %d, ME Instance: %d",
+	log.Printf("OmciRun - transactionId: %d msgType: %d, ME Class: %d, ME Instance: %d",
 		transactionId, msgType, class, instance)
 
 	key := OnuKey{intfId, onuId}
@@ -37,7 +35,7 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	}
 
 	if _, ok := Handlers[msgType]; !ok {
-		logger.Warn("Ignore omci msg (msgType %d not handled)", msgType)
+		log.Printf("Ignore omci msg (msgType %d not handled)", msgType)
 		return resp, &OmciError{"Unimplemented omci msg"}
 	}
 

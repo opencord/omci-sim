@@ -19,8 +19,7 @@ package core
 import (
 	"encoding/binary"
 	"errors"
-
-	logger "github.com/sirupsen/logrus"
+	"log"
 )
 
 type OmciMsgHandler func(class OmciClass, content OmciContent, key OnuKey) ([]byte, error)
@@ -38,7 +37,7 @@ var Handlers = map[OmciMsgType]OmciMsgHandler{
 func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
 
-	logger.Debug("Omci MibReset")
+	log.Printf("Omci MibReset")
 
 	pkt = []byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
@@ -53,7 +52,7 @@ func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) 
 func mibUpload(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
 
-	logger.Debug("Omci MibUpload")
+	log.Printf("Omci MibUpload")
 
 	pkt = []byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
@@ -73,7 +72,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 
 	state := OnuOmciStateMap[key]
 
-	logger.Debug("Omci MibUploadNext %d", state.mibUploadCtr)
+	log.Printf("Omci MibUploadNext %d", state.mibUploadCtr)
 
 	switch state.mibUploadCtr {
 	case 0:
@@ -200,7 +199,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		pkt[11] = state.uniGInstance // UNI-G ME Instance
 		state.uniGInstance++
 	default:
-		logger.Error("Invalid MibUpload request %d", state.mibUploadCtr)
+		log.Printf("Invalid MibUpload request %d", state.mibUploadCtr)
 		return nil, errors.New("Invalid MibUpload request")
 	}
 
@@ -219,7 +218,7 @@ func set(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	logger.Debug("Omci Set")
+	log.Printf("Omci Set")
 
 	return pkt, nil
 }
@@ -229,11 +228,11 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 
 	if class == GEMPortNetworkCTP {
 		if onuOmciState, ok := OnuOmciStateMap[key]; !ok {
-			logger.Error("ONU Key Error - IntfId: %d, OnuId:", key.IntfId, key.OnuId)
+			log.Printf("ONU Key Error - IntfId: %d, OnuId:", key.IntfId, key.OnuId)
 			return nil, errors.New("ONU Key Error")
 		} else {
 			onuOmciState.gemPortId = binary.BigEndian.Uint16(content[:2])
-			logger.Debug("Gem Port Id %d", onuOmciState.gemPortId)
+			log.Printf("Gem Port Id %d", onuOmciState.gemPortId)
 			// FIXME
 			OnuOmciStateMap[key].state = DONE
 		}
@@ -247,7 +246,7 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	logger.Debug("Omci Create")
+	log.Printf("Omci Create")
 
 	return pkt, nil
 }
@@ -263,7 +262,7 @@ func get(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	logger.Debug("Omci Get")
+	log.Printf("Omci Get")
 
 	return pkt, nil
 }
@@ -279,7 +278,7 @@ func getAllAlarms(class OmciClass, content OmciContent, key OnuKey) ([]byte, err
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	logger.Debug("Omci GetAllAlarms")
+	log.Printf("Omci GetAllAlarms")
 
 	return pkt, nil
 }

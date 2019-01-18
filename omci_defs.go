@@ -19,8 +19,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-
-	logger "github.com/sirupsen/logrus"
+	"log"
 )
 
 //
@@ -88,10 +87,10 @@ func ParsePkt(pkt []byte) (uint16, uint8, OmciMsgType, OmciClass, uint16, OmciCo
 	r := bytes.NewReader(pkt)
 
 	if err := binary.Read(r, binary.BigEndian, &m); err != nil {
-		logger.Error("binary.Read failed: %s", err)
+		log.Printf("binary.Read failed: %s", err)
 		return 0, 0, 0, 0, 0, OmciContent{}, errors.New("binary.Read failed")
 	}
-	logger.Debug("OmciRun - TransactionId: %d MessageType: %d, ME Class: %d, ME Instance: %d, Content: %x",
+	log.Printf("OmciRun - TransactionId: %d MessageType: %d, ME Class: %d, ME Instance: %d, Content: %x",
 		m.TransactionId, m.MessageType&0x0F, m.MessageId.Class, m.MessageId.Instance, m.Content)
 	return m.TransactionId, m.DeviceId, m.MessageType & 0x0F, m.MessageId.Class, m.MessageId.Instance, m.Content, nil
 }
