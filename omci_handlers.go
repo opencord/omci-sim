@@ -20,6 +20,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"log"
+	"fmt"
 )
 
 type OmciMsgHandler func(class OmciClass, content OmciContent, key OnuKey) ([]byte, error)
@@ -199,8 +200,8 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		pkt[11] = state.uniGInstance // UNI-G ME Instance
 		state.uniGInstance++
 	default:
-		log.Printf("Invalid MibUpload request %d", state.mibUploadCtr)
-		//return nil, errors.New("Invalid MibUpload request")
+		errstr := fmt.Sprintf("Invalid MibUpload request: %d", state.mibUploadCtr)
+		return nil, errors.New(errstr)
 	}
 
 	state.mibUploadCtr++

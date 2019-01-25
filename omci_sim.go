@@ -41,8 +41,10 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 
 	resp, err = Handlers[msgType](class, content, key)
 	if err != nil {
-		return resp, err
+		log.Println("%s", err)
+		return resp, nil
 	}
+
 	resp[0] = byte(transactionId >> 8)
 	resp[1] = byte(transactionId & 0xFF)
 	resp[2] = 0x2<<4 | byte(msgType)
