@@ -233,7 +233,7 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 			return nil, errors.New("ONU Key Error")
 		} else {
 			onuOmciState.gemPortId = binary.BigEndian.Uint16(content[:2])
-			log.Printf("Gem Port Id %d", onuOmciState.gemPortId)
+			log.Printf("ONU Key {intfid:%d, onuid:%d} Gem Port Id %d", key.IntfId, key.OnuId, onuOmciState.gemPortId)
 			// FIXME
 			OnuOmciStateMap[key].state = DONE
 		}
