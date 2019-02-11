@@ -23,6 +23,7 @@ import (
 type OnuOmciState struct {
 	gemPortId     uint16
 	mibUploadCtr  uint16
+	extraMibUploadCtr	uint16	//this is only for debug purposes, will be removed in the future
 	uniGInstance  uint8
 	tcontInstance uint8
 	pptpInstance  uint8
@@ -42,7 +43,14 @@ var OnuOmciStateMap = map[OnuKey]*OnuOmciState{}
 func NewOnuOmciState() *OnuOmciState {
 	return &OnuOmciState{gemPortId: 0, mibUploadCtr: 0, uniGInstance: 1, tcontInstance: 0, pptpInstance: 1}
 }
-
+func (s *OnuOmciState) ResetOnuOmciState(){
+	s.mibUploadCtr = 0
+	s.extraMibUploadCtr = 0
+	s.gemPortId = 0
+	s.uniGInstance = 1
+	s.tcontInstance = 0
+	s.pptpInstance = 1
+}
 func GetOnuOmciState(intfId uint32, onuId uint32) istate {
 	key := OnuKey{intfId, onuId}
 	if onu, ok := OnuOmciStateMap[key]; ok {
@@ -57,6 +65,6 @@ func GetGemPortId(intfId uint32, onuId uint32) (uint16, error) {
 	if OnuOmciState, ok := OnuOmciStateMap[key]; ok {
 		return OnuOmciState.gemPortId, nil
 	}
-	errmsg := fmt.Sprintf("Failed to find a key in OnuOmciStateMap key{intfid:%d, onuid:%d}", intfId, onuId)
+	errmsg := fmt.Sprintf("ONU {intfid:%d, onuid:%d} - Failed to find a key in OnuOmciStateMap", intfId, onuId)
 	return 0, errors.New(errmsg)
 }

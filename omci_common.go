@@ -29,3 +29,7 @@ func (e *OmciError) Error() string {
 type OnuKey struct {
 	IntfId, OnuId uint32
 }
+
+func (k OnuKey) String() string {
+	return fmt.Sprintf("Onu {intfid:%d, onuid:%d}", k.IntfId, k.OnuId)
+}

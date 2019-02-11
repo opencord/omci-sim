@@ -23,11 +23,12 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 
 	transactionId, deviceId, msgType, class, instance, content, err := ParsePkt(request)
 	if err != nil {
+		log.Printf("ONU {intfid:%d, onuid:%d} - Cannot parse omci msg", intfId, onuId)
 		return resp, &OmciError{"Cannot parse omci msg"}
 	}
 
-	log.Printf("OmciRun - transactionId: %d msgType: %d, ME Class: %d, ME Instance: %d",
-		transactionId, msgType, class, instance)
+	log.Printf("ONU {intfid:%d, onuid:%d} - OmciRun - transactionId: %d msgType: %d, ME Class: %d, ME Instance: %d",
+		intfId, onuId, transactionId, msgType, class, instance)
 
 	key := OnuKey{intfId, onuId}
 	if _, ok := OnuOmciStateMap[key]; !ok {
@@ -35,13 +36,13 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	}
 
 	if _, ok := Handlers[msgType]; !ok {
-		log.Printf("Ignore omci msg (msgType %d not handled)", msgType)
+		log.Printf("ONU {intfid:%d, onuid:%d} - Ignore omci msg (msgType %d not handled)", intfId, onuId, msgType)
 		return resp, &OmciError{"Unimplemented omci msg"}
 	}
 
 	resp, err = Handlers[msgType](class, content, key)
 	if err != nil {
-		log.Println("%s", err)
+		log.Println("ONU {intfid:%d, onuid:%d} - Unable to send a successful response, error:%s", intfId, onuId, err)
 		return resp, nil
 	}
 
