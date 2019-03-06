@@ -63,6 +63,10 @@ func GetOnuOmciState(intfId uint32, onuId uint32) istate {
 func GetGemPortId(intfId uint32, onuId uint32) (uint16, error) {
 	key := OnuKey{intfId, onuId}
 	if OnuOmciState, ok := OnuOmciStateMap[key]; ok {
+		if OnuOmciState.state != DONE {
+			errmsg := fmt.Sprintf("ONU {intfid:%d, onuid:%d} - Not DONE (GemportID is not set)", intfId, onuId)
+			return 0, errors.New(errmsg)
+		}
 		return OnuOmciState.gemPortId, nil
 	}
 	errmsg := fmt.Sprintf("ONU {intfid:%d, onuid:%d} - Failed to find a key in OnuOmciStateMap", intfId, onuId)
