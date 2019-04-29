@@ -16,4 +16,4 @@
 
 package core
 
-const NumMibUploads byte = 26
+const NumMibUploads byte = 0x43 // NumMibUploads is the number of mibs to be sent in subsequent mibuploadnext

@@ -21,13 +21,14 @@ import (
 )
 
 type OnuOmciState struct {
-	gemPortId     uint16
-	mibUploadCtr  uint16
-	extraMibUploadCtr	uint16	//this is only for debug purposes, will be removed in the future
-	uniGInstance  uint8
-	tcontInstance uint8
-	pptpInstance  uint8
-	state         istate
+	gemPortId         uint16
+	mibUploadCtr      uint16
+	extraMibUploadCtr uint16 //this is only for debug purposes, will be removed in the future
+	uniGInstance      uint8
+	tcontInstance     uint8
+	pptpInstance      uint8
+	priorQInstance    uint8 //To assign incrementing value to PQ instance-Id
+	state             istate
 }
 
 type istate int
@@ -43,7 +44,7 @@ var OnuOmciStateMap = map[OnuKey]*OnuOmciState{}
 func NewOnuOmciState() *OnuOmciState {
 	return &OnuOmciState{gemPortId: 0, mibUploadCtr: 0, uniGInstance: 1, tcontInstance: 0, pptpInstance: 1}
 }
-func (s *OnuOmciState) ResetOnuOmciState(){
+func (s *OnuOmciState) ResetOnuOmciState() {
 	s.mibUploadCtr = 0
 	s.extraMibUploadCtr = 0
 	s.gemPortId = 0

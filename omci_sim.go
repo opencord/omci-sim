@@ -46,10 +46,37 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 		return resp, nil
 	}
 
+	// In the OMCI message, first 2-bytes is the Transaction Correlation ID
 	resp[0] = byte(transactionId >> 8)
 	resp[1] = byte(transactionId & 0xFF)
-	resp[2] = 0x2<<4 | byte(msgType)
+	resp[2] = 0x2<<4 | byte(msgType) // Upper nibble 0x2 is fixed (0010), Lower nibbles defines the msg type (i.e., mib-upload, mib-upload-next, etc)
 	resp[3] = deviceId
+
+	// for create, get and set
+	if ((msgType & 0xFF) != MibUploadNext) && ((msgType & 0xFF) != MibReset) && ((msgType & 0xFF) != MibUpload) {
+		log.Println("CREATE GET OR SET OPERATION")
+		// Common fields for create, get, and set
+		resp[4] = byte(class >> 8)
+		resp[5] = byte(class & 0xFF)
+		resp[6] = byte(instance >> 8)
+		resp[7] = byte(instance & 0xFF)
+		resp[8] = 0 // Result: Command Processed Successfully
+
+		// Hardcoding class specific values for Get
+		if (class == 0x82) && ((msgType & 0x0F) == Get) {
+			resp[9] = 0
+			resp[10] = 0x78
+
+		} else if (class == 0x2F) && ((msgType & 0x0F) == Get) {
+			resp[9] = 0x0F
+			resp[10] = 0xB8
+		} else if (class == 0x138) && ((msgType & 0x0F) == Get) {
+			resp[9] = content[0] // 0xBE
+			resp[10] = 0x00
+		}
+	}
+
+	log.Printf("OMCI-SIM Response %+x\n", resp)
 
 	return resp, nil
 }
