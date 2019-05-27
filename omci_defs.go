@@ -60,6 +60,7 @@ const (
 const (
 	// Managed Entity Class values
 	GEMPortNetworkCTP OmciClass = 268
+	ONUG              OmciClass = 256
 )
 
 // OMCI Managed Entity Class
@@ -91,10 +92,10 @@ func ParsePkt(pkt []byte) (uint16, uint8, OmciMsgType, OmciClass, uint16, OmciCo
 		return 0, 0, 0, 0, 0, OmciContent{}, errors.New("binary.Read failed")
 	}
 	/*    Message Type = Set
-        0... .... = Destination Bit: 0x0
-        .1.. .... = Acknowledge Request: 0x1
-        ..0. .... = Acknowledgement: 0x0
-        ...0 1000 = Message Type: Set (8)
+	      0... .... = Destination Bit: 0x0
+	      .1.. .... = Acknowledge Request: 0x1
+	      ..0. .... = Acknowledgement: 0x0
+	      ...0 1000 = Message Type: Set (8)
 	*/
 	log.Printf("OmciRun - TransactionId: %d MessageType: %d, ME Class: %d, ME Instance: %d, Content: %x",
 		m.TransactionId, m.MessageType&0x1F, m.MessageId.Class, m.MessageId.Instance, m.Content)

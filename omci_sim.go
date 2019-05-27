@@ -54,7 +54,6 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 
 	// for create, get and set
 	if ((msgType & 0xFF) != MibUploadNext) && ((msgType & 0xFF) != MibReset) && ((msgType & 0xFF) != MibUpload) {
-		log.Println("CREATE GET OR SET OPERATION")
 		// Common fields for create, get, and set
 		resp[4] = byte(class >> 8)
 		resp[5] = byte(class & 0xFF)
