@@ -17,13 +17,16 @@
 package core
 
 import "log"
+import logs "gerrit.opencord.org/voltha-bbsim/common/logger"
+
+var logger = logs.DefaultLogger
 
 func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	var resp []byte
 
 	transactionId, deviceId, msgType, class, instance, content, err := ParsePkt(request)
 	if err != nil {
-		log.Printf("ONU {intfid:%d, onuid:%d} - Cannot parse omci msg", intfId, onuId)
+		logger.Error("ONU {intfid:%d, onuid:%d} - Cannot parse omci msg", intfId, onuId)
 		return resp, &OmciError{"Cannot parse omci msg"}
 	}
 
@@ -42,7 +45,7 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 
 	resp, err = Handlers[msgType](class, content, key)
 	if err != nil {
-		log.Println("ONU {intfid:%d, onuid:%d} - Unable to send a successful response, error:%s", intfId, onuId, err)
+		log.Printf("ONU {intfid:%d, onuid:%d} - Unable to send a successful response, error:%s", intfId, onuId, err)
 		return resp, nil
 	}
 

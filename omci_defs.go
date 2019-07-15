@@ -59,8 +59,10 @@ const (
 
 const (
 	// Managed Entity Class values
-	GEMPortNetworkCTP OmciClass = 268
-	ONUG              OmciClass = 256
+	EthernetPMHistoryData OmciClass = 24
+	ONUG                  OmciClass = 256
+	ANIG                  OmciClass = 263
+	GEMPortNetworkCTP     OmciClass = 268
 )
 
 // OMCI Managed Entity Class

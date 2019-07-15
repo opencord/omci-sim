@@ -16,4 +16,7 @@
 
 package core
 
-const NumMibUploads byte = 0x43 // NumMibUploads is the number of mibs to be sent in subsequent mibuploadnext
+const NumMibUploadsHigherByte byte = 0x01
+const NumMibUploadsLowerByte byte = 0x23
+const NumPriorQPerTcont = 0x08 // NumPriorQPerTcont is the number of priority queues associated with a single tcont
+

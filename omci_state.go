@@ -23,11 +23,13 @@ import (
 type OnuOmciState struct {
 	gemPortId         uint16
 	mibUploadCtr      uint16
-	extraMibUploadCtr uint16 //this is only for debug purposes, will be removed in the future
+	extraMibUploadCtr uint16 // this is only for debug purposes, will be removed in the future
 	uniGInstance      uint8
 	tcontInstance     uint8
 	pptpInstance      uint8
-	priorQInstance    uint8 //To assign incrementing value to PQ instance-Id
+	priorQInstance    uint8 // To assign incrementing value to PQ instance-Id
+	priorQPriority	  uint8 // Priority of the PriorityQueueG (0-7)
+	tcontPointer      uint8 // Tcont Pointer for PriorQ
 	state             istate
 }
 
@@ -45,12 +47,15 @@ func NewOnuOmciState() *OnuOmciState {
 	return &OnuOmciState{gemPortId: 0, mibUploadCtr: 0, uniGInstance: 1, tcontInstance: 0, pptpInstance: 1}
 }
 func (s *OnuOmciState) ResetOnuOmciState() {
+	// Resetting the counters  
 	s.mibUploadCtr = 0
 	s.extraMibUploadCtr = 0
 	s.gemPortId = 0
 	s.uniGInstance = 1
 	s.tcontInstance = 0
 	s.pptpInstance = 1
+	s.tcontPointer = 0
+	s.priorQPriority = 0
 }
 func GetOnuOmciState(intfId uint32, onuId uint32) istate {
 	key := OnuKey{intfId, onuId}

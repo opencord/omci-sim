@@ -71,7 +71,8 @@ func mibUpload(class OmciClass, content OmciContent, key OnuKey) ([]byte, error)
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	pkt[9] = NumMibUploads // Number of subsequent MibUploadNext cmds
+	pkt[8] = NumMibUploadsHigherByte
+	pkt[9] = NumMibUploadsLowerByte
 
 	return pkt, nil
 }
@@ -82,13 +83,13 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 	state := OnuOmciStateMap[key]
 
 	// commandNumber is the "Command number" attribute received in "MIB Upload Next" OMCI message
-	commandNumber := ( (uint16(content[1])) | (uint16(content[0])<<8) )
+	commandNumber := (uint16(content[1])) | (uint16(content[0])<<8)
 	log.Printf("%v - Omci MibUploadNext %d", key, commandNumber)
 
 	switch commandNumber {
 	case 0:
 		// ONT Data (2)
-		log.Println("ONT DATA")
+		// log.Println("ONT DATA")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x02, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00,
@@ -98,7 +99,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 1:
 		// Circuit Pack (6) - #1
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x01, 0xf0, 0x00, 0x2f, 0x04,
@@ -108,7 +109,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 2:
 		// Circuit Pack (6) - #2
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x01, 0x0f, 0x00, 0x42, 0x52,
@@ -118,7 +119,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 3:
 		// Circuit Pack (6) - #3
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x01, 0x00, 0xf8, 0x20, 0x20,
@@ -128,7 +129,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 4:
 		// Circuit Pack (6) - #4
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x01, 0x00, 0x04, 0x00, 0x00,
@@ -138,7 +139,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 5:
 		// Circuit Pack (6) - #5
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x80, 0xf0, 0x00, 0xee, 0x01,
@@ -148,7 +149,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 6:
 		// Circuit Pack (6) - #6
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x80, 0x0f, 0x00, 0x42, 0x52,
@@ -158,7 +159,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 7:
 		// Circuit Pack (6) - #7
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x80, 0x00, 0xf8, 0x20, 0x20,
@@ -168,7 +169,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 8:
 		// Circuit Pack (6) - #8
-		log.Println("Circuit Pack")
+		// log.Println("Circuit Pack")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x06, 0x01, 0x80, 0x00, 0x04, 0x00, 0x00,
@@ -178,7 +179,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 9, 10, 11, 12:
 		// PPTP (11)
-		log.Println("PPTP")
+		// log.Println("PPTP")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x00, 0x0b, 0x01, 0x01, 0xff, 0xfe, 0x00, 0x2f,
@@ -190,7 +191,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		state.pptpInstance++
 	case 13, 14, 15, 16, 17, 18, 19, 20:
 		// T-CONT (262)
-		log.Println("T-CONT")
+		// log.Println("T-CONT")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x06, 0x80, 0x00, 0xe0, 0x00, 0xff, 0xff,
@@ -198,11 +199,13 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-		pkt[11] = state.tcontInstance // TCONT ME Instance
+
 		state.tcontInstance++
+		pkt[11] = state.tcontInstance // TCONT ME Instance
+
 	case 21:
 		// ANI-G (263)
-		log.Println("ANI-G")
+		// log.Println("ANI-G")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x07, 0x80, 0x01, 0xff, 0xff, 0x01, 0x00,
@@ -212,7 +215,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	case 22, 23, 24, 25:
 		// UNI-G (264)
-		log.Println("UNI-G")
+		// log.Println("UNI-G")
 		pkt = []byte{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x08, 0x01, 0x01, 0xf8, 0x00, 0x00, 0x00,
@@ -223,7 +226,14 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		pkt[11] = state.uniGInstance // UNI-G ME Instance
 		state.uniGInstance++
 
-	case 26, 30, 34, 38, 42, 46, 50, 54:
+	case 26,  30,  34,  38,  42, 46, 50, 54,
+	     58,  62,  66,  70,  74, 78, 82, 86,
+	     90,  94,  98,  102, 106, 110, 114, 118,
+	     122, 126, 130, 134, 138, 142, 146, 150,
+	     154, 158, 162, 166, 170, 174, 178, 182,
+	     186, 190, 194, 198, 202, 206, 210, 214,
+	     218, 222, 226, 230, 234, 238, 242, 246,
+	     250, 254, 258, 262, 266, 270, 274, 278:
 		// Prior-Q with mask downstream
 		log.Println("Mib-upload for prior-q with mask")
 		// For downstream PQ, pkt[10] is 0x00
@@ -239,9 +249,16 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		state.priorQInstance++
 		pkt[11] = state.priorQInstance
 
-	case 27, 31, 35, 39, 43, 47, 51, 55:
+	case 27,  31,  35,  39,  43,  47, 51, 55,
+	     59,  63,  67,  71,  75,  79, 83, 87,
+	     91,  95,  99,  103, 107, 111, 115, 119,
+	     123, 127, 131, 135, 139, 143, 147, 151,
+	     155, 159, 163, 167, 171, 175, 179, 183,
+	     187, 191, 195, 199, 203, 207, 211, 215,
+	     219, 223, 227, 231, 235, 239, 243, 247,
+	     251, 255, 259, 263, 267, 271, 275, 279:
 		// Prior-Q with attribute list downstream
-		log.Println("Mib-upload for prior-q with attribute list")
+		// log.Println("Mib-upload for prior-q with attribute list")
 		pkt = []byte{
 			0x00, 0x43, 0x2e, 0x0a, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x15, 0x00, 0x00, 0xff, 0xf0, 0x00, 0x01,
@@ -252,13 +269,33 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		}
 
 		pkt[11] = state.priorQInstance
-		state.tcontInstance--
-		pkt[24] = state.tcontInstance // related port points to tcont
+
+		// Group 8 PriorQ to point to a particular TCONT
+		// Priority for each group of PriorQ is 0 - 7
+		if state.priorQPriority % NumPriorQPerTcont == 0 {
+			state.tcontPointer++
+		}
+
+		// Only for verification. To be removed
+		if state.tcontPointer > state.tcontInstance {
+			log.Println("Error: Invalid TcontPointer")
+			break
+		}
+
+		pkt[24] = state.tcontPointer
+		pkt[26] = state.priorQPriority % NumPriorQPerTcont
 		pkt[28] = state.tcontInstance
 
-	case 28, 32, 36, 40, 44, 48, 52, 56:
+	case 28,  32,  36,  40,  44, 48, 52, 56,
+	     60,  64,  68,  72,  76, 80, 84, 88,
+	     92,  96,  100, 104, 108, 112, 116, 120,
+	     124, 128, 132, 136, 140, 144, 148, 152,
+	     156, 160, 164, 168, 172, 176, 180, 184,
+	     188, 192, 196, 200, 204, 208, 212, 216,
+	     220, 224, 228, 232, 236, 240, 244, 248,
+	     252, 256, 260, 264, 268, 272, 276, 280:
 		// Prior-Q with mask upstream
-		log.Println("Mib-upload for prior-q with mask")
+		// log.Println("Mib-upload for prior-q with mask")
 		pkt = []byte{
 			0x00, 0x42, 0x2e, 0x0a, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x15, 0x80, 0x00, 0x00, 0x0f, 0xff, 0xff,
@@ -269,9 +306,16 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		}
 		pkt[11] = state.priorQInstance
 
-	case 29, 33, 37, 41, 45, 49, 53, 57:
+	case 29,  33,  37, 41, 45, 49, 53, 57,
+	     61,  65,  69, 73, 77, 81, 85, 89,
+	     93, 97,  101, 105, 109, 113, 117, 121,
+	     125, 129, 133, 137, 141, 145, 149, 153,
+	     157, 161, 165, 169, 173, 177, 181, 185,
+	     189, 193, 197, 201, 205, 209, 213, 217,
+	     221, 225, 229, 233, 237, 241, 245, 249,
+	     253, 257, 261, 265, 269, 273, 277, 281:
 		// Prior-Q with attribute list upstream
-		log.Println("Mib-upload for prior-q with attribute list")
+		// log.Println("Mib-upload for prior-q with attribute list")
 		// For upstream pkt[10] is fixed as 80
 		// So for upstream PQ, instanceId will be like 0x8001, 0x8002 ... etc
 		pkt = []byte{
@@ -284,12 +328,15 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		}
 
 		pkt[11] = state.priorQInstance
-		pkt[24] = state.tcontInstance // related port points to tcont
+		pkt[24] = state.tcontPointer
+		pkt[26] = state.priorQPriority % NumPriorQPerTcont // Priority of this PriorQ
 		pkt[28] = state.tcontInstance
+		state.priorQPriority++
 
-	case 58, 59, 60, 61, 62, 63, 64, 65:
+
+	case 282, 283, 284, 285, 286, 287, 288, 289:
 		// Traffic Scheduler
-		log.Println("Traffic Scheduler")
+		// log.Println("Traffic Scheduler")
 		pkt = []byte{
 			0x02, 0xa4, 0x2e, 0x0a, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x16, 0x80, 0x00, 0xf0, 0x00, 0x80, 0x00,
@@ -302,9 +349,9 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 		pkt[15] = state.tcontInstance
 		state.tcontInstance++
 
-	case 66:
+	case 290:
 		// ONT-2G
-		log.Println("ONT-2G")
+		// log.Println("ONT-2G")
 		pkt = []byte{
 			0x00, 0x16, 0x2e, 0x0a, 0x00, 0x02, 0x00, 0x00,
 			0x01, 0x01, 0x00, 0x00, 0x07, 0xfc, 0x00, 0x40,
@@ -379,8 +426,9 @@ func get(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci Get", key)
+	pkt = GetAttributes(class, content, key, pkt)
 
+	log.Printf("%v - Omci Get", key)
 	return pkt, nil
 }
 
@@ -421,7 +469,7 @@ func getAllAlarmsNext(class OmciClass, content OmciContent, key OnuKey) ([]byte,
 
 	pkt = []byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
-		0x00, 0x0b, 0x01, 0x02, 0x80, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -461,3 +509,4 @@ func reboot(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	log.Printf("%v - Omci Reboot", key)
 	return pkt, nil
 }
+
