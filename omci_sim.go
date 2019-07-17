@@ -18,7 +18,6 @@ package core
 
 import "log"
 
-var logger = logs.DefaultLogger
 
 func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	var resp []byte
