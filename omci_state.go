@@ -18,6 +18,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 type OnuOmciState struct {
@@ -77,4 +78,9 @@ func GetGemPortId(intfId uint32, onuId uint32) (uint16, error) {
 	}
 	errmsg := fmt.Sprintf("ONU {intfid:%d, onuid:%d} - Failed to find a key in OnuOmciStateMap", intfId, onuId)
 	return 0, errors.New(errmsg)
+}
+
+func CheckIsTeo() string {
+	log.Warn("It's TEO!")
+	return "It's TEO!"
 }

@@ -20,7 +20,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type OmciMsgHandler func(class OmciClass, content OmciContent, key OnuKey) ([]byte, error)
@@ -42,9 +42,15 @@ var Handlers = map[OmciMsgType]OmciMsgHandler{
 func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
 
-	log.Printf("%v - Omci MibReset", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci MibReset")
 	if state, ok := OnuOmciStateMap[key]; ok {
-		log.Printf("%v - Reseting OnuOmciState", key)
+		log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Reseting OnuOmciState")
 		state.ResetOnuOmciState()
 	}
 
@@ -61,7 +67,10 @@ func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) 
 func mibUpload(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
 
-	log.Printf("%v - Omci MibUpload", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci MibUpload")
 
 	pkt = []byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
@@ -84,7 +93,11 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 
 	// commandNumber is the "Command number" attribute received in "MIB Upload Next" OMCI message
 	commandNumber := (uint16(content[1])) | (uint16(content[0])<<8)
-	log.Printf("%v - Omci MibUploadNext %d", key, commandNumber)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+		"CommandNumber": commandNumber,
+	}).Tracef("Omci MibUploadNext")
 
 	switch commandNumber {
 	case 0:
@@ -235,7 +248,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 	     218, 222, 226, 230, 234, 238, 242, 246,
 	     250, 254, 258, 262, 266, 270, 274, 278:
 		// Prior-Q with mask downstream
-		log.Println("Mib-upload for prior-q with mask")
+		log.Tracef("Mib-upload for prior-q with mask")
 		// For downstream PQ, pkt[10] is 0x00
 		// So the instanceId will be like 0x0001, 0x0002,... etc
 		pkt = []byte{
@@ -278,7 +291,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 
 		// Only for verification. To be removed
 		if state.tcontPointer > state.tcontInstance {
-			log.Println("Error: Invalid TcontPointer")
+			log.Tracef("Error: Invalid TcontPointer")
 			break
 		}
 
@@ -363,7 +376,7 @@ func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, er
 
 	default:
 		state.extraMibUploadCtr++
-		errstr := fmt.Sprintf("%v - Invalid MibUpload request: %d, extras: %d", key, state.mibUploadCtr, state.extraMibUploadCtr)
+		errstr := fmt.Sprintf("%v - Invalid MibUpload request: %d, extras: %d", key, state.mibUploadCtr, state)
 		return nil, errors.New(errstr)
 	}
 
@@ -382,7 +395,10 @@ func set(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci Set", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci Set")
 
 	return pkt, nil
 }
@@ -392,11 +408,17 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 
 	if class == GEMPortNetworkCTP {
 		if onuOmciState, ok := OnuOmciStateMap[key]; !ok {
-			log.Printf("%v - ONU Key Error", key)
+			log.WithFields(log.Fields{
+				"IntfId": key.IntfId,
+				"OnuId": key.OnuId,
+			}).Tracef("ONU Key Error")
 			return nil, errors.New("ONU Key Error")
 		} else {
 			onuOmciState.gemPortId = binary.BigEndian.Uint16(content[:2])
-			log.Printf("%v - Gem Port Id %d", key, onuOmciState.gemPortId)
+			log.WithFields(log.Fields{
+				"IntfId": key.IntfId,
+				"OnuId": key.OnuId,
+			}).Tracef("Gem Port Id %d", key, onuOmciState)
 			// FIXME
 			OnuOmciStateMap[key].state = DONE
 		}
@@ -410,7 +432,10 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci Create", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci Create")
 
 	return pkt, nil
 }
@@ -428,7 +453,10 @@ func get(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 
 	pkt = GetAttributes(class, content, key, pkt)
 
-	log.Printf("%v - Omci Get", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci Get")
 	return pkt, nil
 }
 
@@ -443,7 +471,10 @@ func getAllAlarms(class OmciClass, content OmciContent, key OnuKey) ([]byte, err
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci GetAllAlarms", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci GetAllAlarms")
 
 	return pkt, nil
 }
@@ -459,7 +490,10 @@ func syncTime(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) 
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci syncTime", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci syncTime")
 
 	return pkt, nil
 }
@@ -475,7 +509,10 @@ func getAllAlarmsNext(class OmciClass, content OmciContent, key OnuKey) ([]byte,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci GetAllAlarmsNext", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci GetAllAlarmsNext")
 
 	return pkt, nil
 }
@@ -491,7 +528,10 @@ func delete(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci Delete", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci Delete")
 
 	return pkt, nil
 }
@@ -506,7 +546,10 @@ func reboot(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
-	log.Printf("%v - Omci Reboot", key)
+	log.WithFields(log.Fields{
+		"IntfId": key.IntfId,
+		"OnuId": key.OnuId,
+	}).Tracef("Omci Reboot")
 	return pkt, nil
 }
 

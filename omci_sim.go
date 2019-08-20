@@ -16,20 +16,33 @@
 
 package core
 
-import "log"
-
+import (
+	"fmt"
+	log "github.com/sirupsen/logrus"
+)
 
 func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	var resp []byte
 
 	transactionId, deviceId, msgType, class, instance, content, err := ParsePkt(request)
 	if err != nil {
-		log.Printf("ONU {intfid:%d, onuid:%d} - Cannot parse omci msg", intfId, onuId)
-		return resp, &OmciError{"Cannot parse omci msg"}
+		log.WithFields(log.Fields{
+			"IntfId": intfId,
+			"OnuId": onuId,
+		}).Errorf("Cannot parse OMCI msg")
+		return resp, &OmciError{"Cannot parse OMCI msg"}
 	}
 
-	log.Printf("ONU {intfid:%d, onuid:%d} - OmciRun - transactionId: %d msgType: %d, ME Class: %d, ME Instance: %d",
-		intfId, onuId, transactionId, msgType, class, instance)
+	log.WithFields(log.Fields{
+		"IntfId": intfId,
+		"OnuId": onuId,
+		"TransactionId": transactionId,
+		"MessageType": msgType.PrettyPrint(),
+		"MeClass": class,
+		"MeInstance": instance,
+		//"Conent": content,
+		"omciMsg": fmt.Sprintf("%x", content),
+	}).Debugf("Processing OMCI pakcet")
 
 	key := OnuKey{intfId, onuId}
 	if _, ok := OnuOmciStateMap[key]; !ok {
@@ -37,13 +50,21 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	}
 
 	if _, ok := Handlers[msgType]; !ok {
-		log.Printf("ONU {intfid:%d, onuid:%d} - Ignore omci msg (msgType %d not handled)", intfId, onuId, msgType)
+		log.WithFields(log.Fields{
+			"IntfId": intfId,
+			"OnuId": onuId,
+			"msgType": msgType,
+		}).Errorf("Ignoring omci msg (msgType %d not handled)", msgType)
 		return resp, &OmciError{"Unimplemented omci msg"}
 	}
 
 	resp, err = Handlers[msgType](class, content, key)
 	if err != nil {
-		log.Printf("ONU {intfid:%d, onuid:%d} - Unable to send a successful response, error:%s", intfId, onuId, err)
+		log.WithFields(log.Fields{
+			"IntfId": intfId,
+			"OnuId": onuId,
+			"msgType": msgType,
+		}).Errorf("Unable to send a successful response, error: %s", err)
 		return resp, nil
 	}
 
@@ -76,7 +97,12 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 		}
 	}
 
-	log.Printf("OMCI-SIM Response %+x\n", resp)
+	log.WithFields(log.Fields{
+		"IntfId": intfId,
+		"OnuId": onuId,
+		"msgType": msgType.PrettyPrint(),
+		"omciMsg": fmt.Sprintf("%x", resp),
+	}).Debugf("OMCI-SIM Response")
 
 	return resp, nil
 }

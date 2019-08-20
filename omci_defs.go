@@ -19,7 +19,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"log"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 )
 
 //
@@ -28,6 +29,60 @@ import (
 
 // OmciMsgType represents a OMCI message-type
 type OmciMsgType byte
+
+func (t OmciMsgType) PrettyPrint() string {
+	switch t {
+	case Create:
+		return "Create"
+	case Delete:
+		return "Delete"
+	case Set:
+		return "Set"
+	case Get:
+		return "Get"
+	case GetAllAlarms:
+		return "GetAllAlarms"
+	case GetAllAlarmsNext:
+		return "GetAllAlarmsNext"
+	case MibUpload:
+		return "MibUpload"
+	case MibUploadNext:
+		return "MibUploadNext"
+	case MibReset:
+		return "MibReset"
+	case AlarmNotification:
+		return "AlarmNotification"
+	case AttributeValueChange:
+		return "AttributeValueChange"
+	case Test:
+		return "Test"
+	case StartSoftwareDownload:
+		return "StartSoftwareDownload"
+	case DownloadSection:
+		return "DownloadSection"
+	case EndSoftwareDownload:
+		return "EndSoftwareDownload"
+	case ActivateSoftware:
+		return "ActivateSoftware"
+	case CommitSoftware:
+		return "CommitSoftware"
+	case SynchronizeTime:
+		return "SynchronizeTime"
+	case Reboot:
+		return "Reboot"
+	case GetNext:
+		return "GetNext"
+	case TestResult:
+		return "TestResult"
+	case GetCurrentData:
+		return "GetCurrentData"
+	case SetTable:
+		return "SetTable"
+	default:
+		log.Warnf("Cant't convert state %v to string", t)
+		return string(t)
+	}
+}
 
 const (
 	// Message Types
@@ -90,8 +145,11 @@ func ParsePkt(pkt []byte) (uint16, uint8, OmciMsgType, OmciClass, uint16, OmciCo
 	r := bytes.NewReader(pkt)
 
 	if err := binary.Read(r, binary.BigEndian, &m); err != nil {
-		log.Printf("binary.Read failed: %s", err)
-		return 0, 0, 0, 0, 0, OmciContent{}, errors.New("binary.Read failed")
+		log.WithFields(log.Fields{
+			"Packet": pkt,
+			"omciMsg": fmt.Sprintf("%x", pkt),
+		}).Errorf("Failed to read packet: %s", err)
+		return 0, 0, 0, 0, 0, OmciContent{}, errors.New("Failed to read packet")
 	}
 	/*    Message Type = Set
 	      0... .... = Destination Bit: 0x0
@@ -99,7 +157,15 @@ func ParsePkt(pkt []byte) (uint16, uint8, OmciMsgType, OmciClass, uint16, OmciCo
 	      ..0. .... = Acknowledgement: 0x0
 	      ...0 1000 = Message Type: Set (8)
 	*/
-	log.Printf("OmciRun - TransactionId: %d MessageType: %d, ME Class: %d, ME Instance: %d, Content: %x",
-		m.TransactionId, m.MessageType&0x1F, m.MessageId.Class, m.MessageId.Instance, m.Content)
+
+	log.WithFields(log.Fields{
+		"TransactionId": m.TransactionId,
+		"MessageType": m.MessageType.PrettyPrint(),
+		"MeClass": m.MessageId.Class,
+		"MeInstance": m.MessageId.Instance,
+		"Conent": m.Content,
+		"Packet": pkt,
+	}).Tracef("Parsing OMCI Packet")
+
 	return m.TransactionId, m.DeviceId, m.MessageType & 0x1F, m.MessageId.Class, m.MessageId.Instance, m.Content, nil
 }
