@@ -1,4 +1,4 @@
-module gerrit.opencord.org/omci-sim
+module github.com/opencord/omci-sim
 
 go 1.12
 
