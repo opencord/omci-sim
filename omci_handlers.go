@@ -421,6 +421,13 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 			}).Tracef("Gem Port Id %d", key, onuOmciState)
 			// FIXME
 			OnuOmciStateMap[key].state = DONE
+			omciCh <- OmciChMessage{
+				Type: GemPortAdded,
+				Data: OmciChMessageData{
+					OnuId: key.OnuId,
+					IntfId: key.IntfId,
+				},
+			}
 		}
 	}
 

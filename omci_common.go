@@ -60,7 +60,7 @@ func GetAttributes(class OmciClass, content OmciContent, key OnuKey, pkt []byte)
 			"IntfId": key.IntfId,
 			"OnuId": key.OnuId,
 			"class": class,
-		}).Warnf("Unimplemeted GetAttributes for ME Class: %v " +
+		}).Tracef("Unimplemeted GetAttributes for ME Class: %v " +
 		    "Filling with zero value for the requested attributes", class)
 		AttributesMask := getAttributeMask(content)
 		pkt[8] = 0x00 // Command Processed Successfully

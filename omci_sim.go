@@ -21,6 +21,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var omciCh = make(chan OmciChMessage)
+
+func GetChannel() chan OmciChMessage {
+	return omciCh
+}
+
 func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	var resp []byte
 
@@ -42,7 +48,7 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 		"MeInstance": instance,
 		//"Conent": content,
 		"omciMsg": fmt.Sprintf("%x", content),
-	}).Debugf("Processing OMCI pakcet")
+	}).Tracef("Processing OMCI pakcet")
 
 	key := OnuKey{intfId, onuId}
 	if _, ok := OnuOmciStateMap[key]; !ok {
@@ -102,7 +108,7 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 		"OnuId": onuId,
 		"msgType": msgType.PrettyPrint(),
 		"omciMsg": fmt.Sprintf("%x", resp),
-	}).Debugf("OMCI-SIM Response")
+	}).Tracef("OMCI-SIM Response")
 
 	return resp, nil
 }

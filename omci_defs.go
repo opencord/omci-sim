@@ -23,6 +23,31 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// OMCI Sim definitions
+
+type ChMessageType int
+
+const (
+	GemPortAdded ChMessageType = iota
+)
+
+func (m ChMessageType) String() string {
+	names := [...]string{
+		"GemPortAdded",
+	}
+	return names[m]
+}
+
+type OmciChMessageData struct {
+	IntfId 	uint32
+	OnuId   uint32
+}
+
+type OmciChMessage struct {
+	Type ChMessageType
+	Data OmciChMessageData
+}
+
 //
 // OMCI definitions
 //
@@ -79,7 +104,18 @@ func (t OmciMsgType) PrettyPrint() string {
 	case SetTable:
 		return "SetTable"
 	default:
-		log.Warnf("Cant't convert state %v to string", t)
+		// FIXME
+		// msg="Cant't convert state 68 to string"
+		// msg="Cant't convert state 72 to string"
+		// msg="Cant't convert state 73 to string"
+		// msg="Cant't convert state 75 to string"
+		// msg="Cant't convert state 76 to string"
+		// msg="Cant't convert state 77 to string"
+		// msg="Cant't convert state 78 to string"
+		// msg="Cant't convert state 79 to string"
+		// msg="Cant't convert state 88 to string"
+
+		log.Tracef("Cant't convert OmciMsgType %v to string", t)
 		return string(t)
 	}
 }
@@ -112,6 +148,26 @@ const (
 	SetTable              OmciMsgType = 29 // Defined in Extended Message Set Only
 )
 
+
+// OMCI Managed Entity Class
+type OmciClass uint16
+
+func (c OmciClass) PrettyPrint() string {
+	switch c {
+	case EthernetPMHistoryData:
+		return "EthernetPMHistoryData"
+	case ONUG:
+		return "ONUG"
+	case ANIG:
+		return "ANIG"
+	case GEMPortNetworkCTP:
+		return "GEMPortNetworkCTP"
+	default:
+		log.Tracef("Cant't convert OmciClass %v to string", c)
+		return string(c)
+	}
+}
+
 const (
 	// Managed Entity Class values
 	EthernetPMHistoryData OmciClass = 24
@@ -119,9 +175,6 @@ const (
 	ANIG                  OmciClass = 263
 	GEMPortNetworkCTP     OmciClass = 268
 )
-
-// OMCI Managed Entity Class
-type OmciClass uint16
 
 // OMCI Message Identifier
 type OmciMessageIdentifier struct {
