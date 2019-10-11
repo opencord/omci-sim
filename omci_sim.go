@@ -51,9 +51,11 @@ func OmciSim(intfId uint32, onuId uint32, request []byte) ([]byte, error) {
 	}).Tracef("Processing OMCI pakcet")
 
 	key := OnuKey{intfId, onuId}
+	OnuOmciStateMapLock.Lock()
 	if _, ok := OnuOmciStateMap[key]; !ok {
 		OnuOmciStateMap[key] = NewOnuOmciState()
 	}
+	OnuOmciStateMapLock.Unlock()
 
 	if _, ok := Handlers[msgType]; !ok {
 		log.WithFields(log.Fields{

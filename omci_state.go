@@ -18,6 +18,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"sync"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -43,6 +44,7 @@ const (
 )
 
 var OnuOmciStateMap = map[OnuKey]*OnuOmciState{}
+var OnuOmciStateMapLock = sync.RWMutex{}
 
 func NewOnuOmciState() *OnuOmciState {
 	return &OnuOmciState{gemPortId: 0, mibUploadCtr: 0, uniGInstance: 1, tcontInstance: 0, pptpInstance: 1}
@@ -60,6 +62,8 @@ func (s *OnuOmciState) ResetOnuOmciState() {
 }
 func GetOnuOmciState(intfId uint32, onuId uint32) istate {
 	key := OnuKey{intfId, onuId}
+	OnuOmciStateMapLock.RLock()
+	defer OnuOmciStateMapLock.RUnlock()
 	if onu, ok := OnuOmciStateMap[key]; ok {
 		return onu.state
 	} else {
@@ -69,6 +73,8 @@ func GetOnuOmciState(intfId uint32, onuId uint32) istate {
 
 func GetGemPortId(intfId uint32, onuId uint32) (uint16, error) {
 	key := OnuKey{intfId, onuId}
+	OnuOmciStateMapLock.RLock()
+	defer OnuOmciStateMapLock.RUnlock()
 	if OnuOmciState, ok := OnuOmciStateMap[key]; ok {
 		if OnuOmciState.state != DONE {
 			errmsg := fmt.Sprintf("ONU {intfid:%d, onuid:%d} - Not DONE (GemportID is not set)", intfId, onuId)

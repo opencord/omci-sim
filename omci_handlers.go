@@ -46,6 +46,7 @@ func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) 
 		"IntfId": key.IntfId,
 		"OnuId": key.OnuId,
 	}).Tracef("Omci MibReset")
+	OnuOmciStateMapLock.RLock()
 	if state, ok := OnuOmciStateMap[key]; ok {
 		log.WithFields(log.Fields{
 		"IntfId": key.IntfId,
@@ -53,6 +54,7 @@ func mibReset(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) 
 	}).Tracef("Reseting OnuOmciState")
 		state.ResetOnuOmciState()
 	}
+	OnuOmciStateMapLock.RUnlock()
 
 	pkt = []byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
@@ -88,9 +90,9 @@ func mibUpload(class OmciClass, content OmciContent, key OnuKey) ([]byte, error)
 
 func mibUploadNext(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
-
+	OnuOmciStateMapLock.RLock()
 	state := OnuOmciStateMap[key]
-
+	OnuOmciStateMapLock.RUnlock()
 	// commandNumber is the "Command number" attribute received in "MIB Upload Next" OMCI message
 	commandNumber := (uint16(content[1])) | (uint16(content[0])<<8)
 	log.WithFields(log.Fields{
@@ -407,6 +409,8 @@ func create(class OmciClass, content OmciContent, key OnuKey) ([]byte, error) {
 	var pkt []byte
 
 	if class == GEMPortNetworkCTP {
+		OnuOmciStateMapLock.RLock()
+		defer OnuOmciStateMapLock.RUnlock()
 		if onuOmciState, ok := OnuOmciStateMap[key]; !ok {
 			log.WithFields(log.Fields{
 				"IntfId": key.IntfId,
